@@ -1,0 +1,74 @@
+axios:
+
+const student_create = (token, params) =>
+    apiClient.post(
+        "store-student",
+
+        params,
+        {
+            headers: {
+                "Content-type": "application/json; multipart/form-data",
+
+                Authorization: `Bearer ${token}`,
+            },
+            // headers: {
+            //     "Content-Type": "multipart/form-data",
+            //     'Authorization': `Bearer ${token}`,
+            // },
+        }
+    );
+
+Laravel:
+
+Model:
+ public function productCategory(){
+        return $this->belongsTo('App\Models\ProductCategory', 'category_id','id');
+    }
+
+ public function productImages(){
+        return $this->hasMany('App\Models\ProductImage','product_id','id');
+    }
+
+ function courses(){
+            return $this->belongsToMany(Course::class);
+        }
+
+
+
+
+public function up()
+    {
+        Schema::create('course_student', function (Blueprint $table) {
+            $table->id();
+            $table->unsignedBigInteger('course_id');
+            $table->unsignedBigInteger('student_id');
+            $table->enum('status', array(0,1))->default(1);
+            $table->timestamp('created_at')->useCurrent();
+            $table->timestamp('updated_at')->useCurrent();
+            $table->softDeletes();
+        });
+    }
+
+
+public function up()
+    {
+        Schema::table('course_student', function (Blueprint $table) {
+            $table->foreign('course_id')->references('id')->on('courses')->onDelete('cascade');
+            $table->foreign('student_id')->references('id')->on('students')->onDelete('cascade');
+        });
+    }
+
+    /**
+     * Reverse the migrations.
+     *
+     * @return void
+     */
+    public function down()
+    {
+        Schema::table('course_student', function (Blueprint $table) {
+            $table->dropForeign(['student_id']);
+            $table->dropColumn('student_id');
+            $table->dropForeign(['course_id']);
+            $table->dropColumn('course_id');
+        });
+    }
